@@ -56,20 +56,26 @@ date, plan enumeration + ranking, spending changes) → deterministic validator 
 
 ## 6. Subtask plan (each = one small, self-contained commit)
 - [x] ST0  Repo hygiene: .gitignore, log.txt, PROJECT_MEMORY.md skeleton.
-- [ ] ST1  Data profiling script + CSV loaders + typed models (learn value sets: event_type/status/flexibility).
-- [ ] ST2  Currency conversion util (dated rate lookup, both directions).
-- [ ] ST3  Image amount extraction (vision) → cached JSON; fill blank event amounts.
-- [ ] ST4  Message interpretation (LLM) → cached structured amendments (salary change/date/cancel/reduce).
-- [ ] ST5  Financial-state reconstruction (recurring detection, salary schedule, pending reserve, apply amendments + conflict rules).
-- [ ] ST6  90-day forecast simulator + safety check (balance ≥ min every day).
-- [ ] ST7  Solvers: amount_safe_to_pay + earliest_date_for_full_payment.
-- [ ] ST8  Payment-option eligibility + plan enumeration + 6-tier ranking.
-- [ ] ST9  Spending-changes search (flexible stop/reduce, ≤3).
-- [ ] ST10 Decision assembler + grounded explanation generator.
-- [ ] ST11 Deterministic validator (bounds, sums, schedule match, flexible-only, chronology, 250 rows).
-- [ ] ST12 Self-scoring harness vs sample_requests.csv (25 golden).
-- [ ] ST13 Full run → root output.csv; iterate to maximize sample score.
-- [ ] ST14 evaluation/usage_report.md + README + package code.zip.
+- [x] ST1  CSV loaders + typed models (lib/loaders.py, lib/models.py).
+- [x] ST2  Currency conversion util (lib/fx.py, dated on-or-before lookup + inverse).
+- [x] ST3  Image amount extraction (agent vision) → code/evidence/image_amounts.json (16 events).
+- [x] ST4  Message interpretation → deterministic bilingual parser (lib/messages.py).
+- [x] ST5  Financial-state reconstruction (lib/reconstruct.py) + modal-cluster salary calibration.
+- [x] ST6  90-day forecast simulator + safety check (lib/forecast.py).
+- [x] ST7  Solvers: amount_safe_to_pay + earliest_date_for_full_payment.
+- [x] ST8  Payment-option eligibility + plan enumeration + 6-tier ranking (lib/decision.py).
+- [x] ST9  Spending-changes search (flexible stop/reduce, ≤3) (lib/decision.py).
+- [x] ST10 Decision assembler + grounded explanation generator.
+- [x] ST11 Deterministic validator (lib/validate.py).
+- [x] ST12 Self-scoring harness (code/score_samples.py + code/evaluation/main.py).
+- [x] ST13 Full run → root output.csv (250 rows, all validation passes).
+- [x] ST14 evaluation/usage_report.md + code/README.md + code.zip package.
+
+## Status (2026-09-12)
+End-to-end complete & validated. Sample self-score: status 18/25, method 19/25; baseline_min
+median ratio ~1.007 (unbiased), 6/25 within 2% on amount. Remaining sample gaps are
+borderline forecast calibration (tail expense timing), not logic. Deliverables ready:
+output.csv, code.zip (20.9 KB), evaluation/usage_report.md, log.txt.
 
 ## 7. Decisions log
 - 2026-09-12: Language = Python (matches starter `code/main.py`; best CSV+vision ecosystem). Committing on `main` of the fork (solo). Hybrid deterministic+LLM approach chosen for accuracy + low token cost.

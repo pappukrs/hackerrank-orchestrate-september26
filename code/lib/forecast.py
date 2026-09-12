@@ -58,7 +58,7 @@ def earliest_full_date(start_balance, flows, start, end, min_keep, requested) ->
     """Earliest day D such that paying the full `requested` as one payment on D keeps the
     balance >= min_keep for the rest of the window."""
     series = curve(start_balance, flows, start, end)
-    threshold = min_keep + requested
+    threshold = min_keep + requested - EPS
     # candidate days = start + each event day; find earliest with suffix-min >= threshold
     n = len(series)
     suffix = [0.0] * n
@@ -67,7 +67,7 @@ def earliest_full_date(start_balance, flows, start, end, min_keep, requested) ->
         run = min(run, series[i][1])
         suffix[i] = run
     for i in range(n):
-        if suffix[i] >= threshold - EPS:
+        if suffix[i] >= threshold:
             return series[i][0]
     return None
 
