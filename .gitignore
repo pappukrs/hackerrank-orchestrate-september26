@@ -1,0 +1,17 @@
+# AGENTS.md mandates: never commit the chat/session log
+log.txt
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+
+# Build / submission artifact (regenerated)
+code.zip
+
+# Local caches (regenerated from dataset)
+code/.cache/
+*.tmp
