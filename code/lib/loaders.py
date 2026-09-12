@@ -5,6 +5,7 @@ import os
 from collections import defaultdict
 from dataclasses import dataclass, field
 
+from .evidence import load_image_amounts
 from .models import (
     Event,
     ExchangeRate,
@@ -49,6 +50,14 @@ def load_dataset() -> Dataset:
     requests = [Request.from_row(r) for r in _read("requests.csv")]
     profiles = [Profile.from_row(r) for r in _read("financial_profiles.csv")]
     events = [Event.from_row(r) for r in _read("financial_events.csv")]
+
+    image_amounts = load_image_amounts()
+    for e in events:
+        if e.amount is None and e.event_id in image_amounts:
+            ev = image_amounts[e.event_id]
+            e.amount = float(ev["amount"])
+            if not e.currency and ev.get("currency"):
+                e.currency = ev["currency"]
     options = [PaymentOption.from_row(r) for r in _read("request_payment_options.csv")]
     messages = [Message.from_row(r) for r in _read("messages.csv")]
     images = [ImageLink.from_row(r) for r in _read("images.csv")]
