@@ -134,6 +134,37 @@ class Reconstructor:
     def _near_covered(self, covered, cat, d) -> bool:
         return any(c == cat and abs((cd - d).days) <= 6 for (c, cd) in covered)
 
+    def _regular_salary(self, sal_settled, home):
+        """Identify a regular monthly salary: the largest cluster of ~equal amounts
+        (within 1%) that is monthly-spaced. Isolates the base salary from one-off
+        adjustments/extras and rejects frequent variable (gig) income."""
+        pts = [(e.settlement_date, self._home(e.amount, e.currency, home, e.settlement_date))
+               for e in sal_settled]
+        used = [False] * len(pts)
+        best = None
+        for i in range(len(pts)):
+            if used[i]:
+                continue
+            grp = [i]
+            used[i] = True
+            for j in range(i + 1, len(pts)):
+                if not used[j] and abs(pts[j][1] - pts[i][1]) <= 0.01 * max(pts[i][1], pts[j][1], 1):
+                    grp.append(j)
+                    used[j] = True
+            if len(grp) < 2:
+                continue
+            dates = sorted(pts[k][0] for k in grp)
+            gaps = [(dates[x] - dates[x - 1]).days for x in range(1, len(dates))]
+            mg = statistics.median(gaps)
+            if 25 <= mg <= 35:
+                amt = statistics.mean(pts[k][1] for k in grp)
+                score = (len(grp), dates[-1])
+                if best is None or score > best[0]:
+                    best = (score, amt, dates[-1])
+        if best:
+            return best[1], best[2]
+        return None, None
+
     def _project_salary(self, uid, home, start, end) -> list[Flow]:
         evs = self.ds.events_by_user.get(uid, [])
         sal_settled = sorted(
@@ -162,9 +193,13 @@ class Reconstructor:
             reg = occ[-1][1]
             last_date = sal_future[-1].settlement_date
         elif sal_settled:
-            reg = statistics.median(self._home(e.amount, e.currency, home, e.settlement_date)
-                                    for e in sal_settled[-3:])
-            last_date = sal_settled[-1].settlement_date
+            reg, last_date = self._regular_salary(sal_settled, home)
+            if reg is None and not (first or confirm_eff or from_eff or next_eff):
+                return []          # no monthly-regular salary (variable/gig income)
+            if reg is None:
+                reg = statistics.median(self._home(e.amount, e.currency, home, e.settlement_date)
+                                        for e in sal_settled[-3:])
+                last_date = sal_settled[-1].settlement_date
         elif first and first.on_date:
             reg = self._home(first.amount, first.currency, home, first.on_date)
             last_date = add_months(first.on_date, -1)
