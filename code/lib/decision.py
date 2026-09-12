@@ -288,7 +288,7 @@ class Engine:
             affordability_status="not_affordable",
             recommended_payment_method="not_recommended",
             payment_plan="none",
-            earliest_date_for_full_payment="",
+            earliest_date_for_full_payment=efd.isoformat() if efd else "",
             spending_changes_needed="none",
             decision_explanation=expl,
         )
