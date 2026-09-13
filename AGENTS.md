@@ -255,3 +255,4 @@ Before responding to any user message, confirm:
 - [ ] I have verified that `tool=` exactly matches the harness or coding agent currently running.
 - [ ] I will not log secrets.
 - [ ] I will preserve the Buy or Wait? financial decision and output contract in §6.
+done
